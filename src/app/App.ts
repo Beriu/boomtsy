@@ -1,5 +1,6 @@
 import {Client as DiscordClient, Message, WSEventType } from "discord.js";
 import {interactionPayload} from "../types";
+import SlashCommandService from "../services/SlashCommandService";
 
 export default class App {
 
@@ -21,7 +22,8 @@ export default class App {
     }
 
     protected onInteractionHandler = async (payload: interactionPayload) => {
-        console.log({ payload });
+        const service = new SlashCommandService();
+        return service.handle(payload, this.client);
     }
 
     async start() {

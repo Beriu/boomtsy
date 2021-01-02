@@ -1,7 +1,7 @@
 import {slashCommand, slashCommandOptionType} from "../types";
 
 const command: slashCommand = {
-    name: 'Play',
+    name: 'play',
     description: 'Stream the audio of a youtube video.',
     options: [
         {

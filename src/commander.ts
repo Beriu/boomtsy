@@ -1,8 +1,23 @@
 import axios from "axios";
 import SlashCommandRepository from "./repositories/SlashCommandRepository";
 import * as path from 'path';
+import {promises as fs} from "fs";
+import {slashCommand} from "./types";
 
 const { DISCORD_APP_ID, TEST_GUILD_ID, DISCORD_BOT_TOKEN } = process.env;
+
+async function loadCommands() {
+    const cmdMap: slashCommand[] = [];
+    const normalizedPath = path.join(__dirname, 'commands');
+    const files = await fs.readdir(normalizedPath);
+
+    for(const file of files) {
+        const filePath = path.join(__dirname, 'commands/' + file);
+        const { default: defaultImport } = await import(filePath);
+        cmdMap.push(defaultImport);
+    }
+    return cmdMap;
+}
 
 (async function() {
     const [executable, file, action, metadata, environment] = process.argv;
