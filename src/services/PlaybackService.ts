@@ -3,7 +3,7 @@ import {interactionPayload} from "../types";
 
 export default class PlaybackService {
 
-    async handle(url: string) {
-        console.log(url);
+    async handle(interaction: interactionPayload) {
+
     }
 }
