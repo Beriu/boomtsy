@@ -32,17 +32,29 @@ export enum slashCommandOptionType {
 }
 
 export enum interactionType {
-    Ping = 1,
-    ApplicationCommand = 2
+    Pong = 1, // ACK a Ping
+    Acknowledge = 2, // ACK a command without sending a message, eating the user's input
+    ChannelMessage = 3, // respond with a message, eating the user's input
+    ChannelMessageWithSource = 4, // respond with a message, showing the user's input
+    AcknowledgeWithSource = 5, // ACK a command without sending a message, showing the user's input
 }
 
 /** Temporary type until Discord updates package typings **/
-export type interactionPayload = {
+
+export type userInteractionOption = { name: string, value: string };
+
+export type userInteraction = {
+    id: Snowflake;
+    name: string;
+    options: Array<userInteractionOption>;
+};
+
+export type userInteractionRequest = {
     id: Snowflake;
     guild_id: Snowflake;
     channel_id: Snowflake;
     type: interactionType;
-    data: slashCommand;
+    data: userInteraction;
     member: GuildMember;
     token: string;
     readonly version: 1

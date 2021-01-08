@@ -4,7 +4,7 @@ import * as path from 'path';
 import {promises as fs} from "fs";
 import {slashCommand} from "./types";
 
-const { DISCORD_APP_ID, TEST_GUILD_ID, DISCORD_BOT_TOKEN } = process.env;
+const { DISCORD_APP_ID, TEST_GUILD_ID, DISCORD_BOT_TOKEN, DISCORD_API_URL } = process.env;
 
 async function loadCommands() {
     const cmdMap: slashCommand[] = [];
@@ -22,8 +22,8 @@ async function loadCommands() {
 (async function() {
     const [executable, file, action, metadata, environment] = process.argv;
 
-    const productionUrl = `https://discord.com/api/v8/applications/${DISCORD_APP_ID}`;
-    const developmentUrl = `https://discord.com/api/v8/applications/${DISCORD_APP_ID}/guilds/${TEST_GUILD_ID}`;
+    const productionUrl = `${DISCORD_API_URL}/applications/${DISCORD_APP_ID}`;
+    const developmentUrl = `${DISCORD_API_URL}/applications/${DISCORD_APP_ID}/guilds/${TEST_GUILD_ID}`;
 
     const baseUrl = environment === 'production' ? productionUrl : developmentUrl;
     const instance = axios.create({

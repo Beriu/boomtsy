@@ -1,10 +1,10 @@
 import {Client as DiscordClient, Message, WSEventType } from "discord.js";
-import {interactionPayload} from "../types";
-import SlashCommandService from "../services/SlashCommandService";
+import {userInteractionRequest} from "../types";
+import InteractionsController from "../controllers/InteractionsController";
 
 export default class App {
 
-    protected client: DiscordClient
+    protected client: DiscordClient;
 
     constructor() {
         this.client = new DiscordClient();
@@ -21,9 +21,9 @@ export default class App {
         console.info(`${this.client.user?.tag} started listening.`);
     }
 
-    protected onInteractionHandler = async (payload: interactionPayload) => {
-        const service = new SlashCommandService();
-        return service.handle(payload, this.client);
+    protected onInteractionHandler = async (payload: userInteractionRequest) => {
+        const controller = new InteractionsController(this.client);
+        return controller.onSlashCommand(payload);
     }
 
     async start() {

@@ -5,8 +5,8 @@ const command: slashCommand = {
     description: 'Stream the audio of a youtube video.',
     options: [
         {
-            name: 'url',
-            description: 'Needs to be a public youtube video url.',
+            name: 'input',
+            description: 'Youtube video or keywords like song title and/or author.',
             required: true,
             type: slashCommandOptionType.STRING
         }
