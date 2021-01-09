@@ -59,3 +59,5 @@ export type userInteractionRequest = {
     token: string;
     readonly version: 1
 };
+
+export type song = { title: string, url: string, duration: string, thumbnail: string };

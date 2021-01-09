@@ -1,7 +1,9 @@
-import {Client as DiscordClient, Snowflake, TextChannel} from "discord.js";
+import {Client as DiscordClient, GuildMember, Snowflake, TextChannel} from "discord.js";
 import {userInteractionRequest} from "../types";
 import error from "../errors";
-import YoutubePlaybackService from "../services/YoutubePlaybackService";
+import YoutubeVideoInfoService from "../services/YoutubeVideoInfoService";
+import NewSongMessage from "../embeds/NewSongMessage";
+import ytdl from "ytdl-core";
 
 export default class InteractionsController {
 
@@ -13,6 +15,13 @@ export default class InteractionsController {
         if(!textChannel.isText()) return false;
         if(!(textChannel instanceof TextChannel)) return false;
         return textChannel;
+    }
+
+    protected static getUsernameAndAvatar({ user }: GuildMember) {
+        return {
+            name: user.username,
+            avatar: user.avatarURL() ?? user.defaultAvatarURL
+        }
     }
 
     onSlashCommand = async (interaction: userInteractionRequest) => {
@@ -36,12 +45,15 @@ export default class InteractionsController {
             return;
         }
 
-        // const connection = await caller.voice.channel.join();
-        // const isDeaf = await connection.voice?.setSelfDeaf(true);
-
-        const yt = new YoutubePlaybackService();
-        const embed = await yt.handle(interaction);
+        const song = await YoutubeVideoInfoService.handle(interaction);
+        const embed = new NewSongMessage(song, InteractionsController.getUsernameAndAvatar(guildMember));
 
         await textChannel.send([embed]);
+
+        const connection = await guildMember.voice.channel.join();
+        const isDeaf = await connection.voice?.setSelfDeaf(true);
+        const stream = ytdl(song.url, { filter: 'audioonly' });
+
+        connection.play(stream);
     }
 }

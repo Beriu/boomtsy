@@ -1,8 +1,9 @@
 import { MessageEmbed } from "discord.js";
+import { song } from "../types";
 
 export default class NewSongMessage extends MessageEmbed {
 
-    constructor(song: { title: string, thumbnail: string, url: string, duration: string }, user: { avatar: string, name: string }) {
+    constructor(song: song, user: { avatar: string, name: string }) {
         super(
             {
                 color: '#7DE2D1',
