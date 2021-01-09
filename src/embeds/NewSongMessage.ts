@@ -3,7 +3,7 @@ import { song } from "../types";
 
 export default class NewSongMessage extends MessageEmbed {
 
-    constructor(song: song, user: { avatar: string, name: string }) {
+    constructor(song: song, user: { avatar: string, name: string }, position: number) {
         super(
             {
                 color: '#7DE2D1',
@@ -13,7 +13,7 @@ export default class NewSongMessage extends MessageEmbed {
                 thumbnail: { url: song.thumbnail },
                 fields: [
                     { name: 'Duration', value: song.duration, inline: true },
-                    { name: 'Position', value: 2, inline: true },
+                    { name: 'Position', value: position,      inline: true },
                 ]
             }
         );

@@ -1,11 +1,22 @@
+import {Snowflake} from "discord.js";
 
-const errors = {
-    NOT_IN_VOICE_CHANNEL: (userId: any) => `Silly <@${userId}>, you need to join a voice channel first!`,
-    INVALID_YOUTUBE_URL: (userId: any) => `<@${userId}> that's not a valid youtube url.`
-};
+export class NotInVoiceChannelException extends Error {
 
-type errorKeys = keyof typeof errors;
+    constructor(userId: Snowflake) {
+        super(`Silly <@${userId}>, you need to join a voice channel first!`);
+    }
+}
 
-const error = (err: errorKeys, tag?: any) => errors[err](tag);
+export class InvalidYoutubeUrlException extends Error {
 
-export default error;
+    constructor(userId: Snowflake) {
+        super(`<@${userId}> that's not a valid youtube url.`);
+    }
+}
+
+export class NotTextChannelException extends Error {
+
+    constructor() {
+        super('Command was run in an abnormal environment.');
+    }
+}

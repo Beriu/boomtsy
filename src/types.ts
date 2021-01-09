@@ -61,3 +61,8 @@ export type userInteractionRequest = {
 };
 
 export type song = { title: string, url: string, duration: string, thumbnail: string };
+
+export type queueSlot = { song: song, user: { name: string, avatar: string } };
+
+export type queue = Array<queueSlot>;
+
