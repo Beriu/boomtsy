@@ -56,11 +56,10 @@ export default class InteractionsController {
 
             const connection = await guildMember.voice.channel?.join() as VoiceConnection;
             await connection.voice?.setSelfDeaf(true);
-            //const stream = ytdl(song.url, { filter: 'audioonly' });
-            //connection.play(stream);
 
-        }catch (error) {
-            console.log(error.message);
-        }
+            const stream = ytdl(song.url, { filter: 'audioonly' });
+            const connectionStream = connection.play(stream);
+
+        }catch (error) { console.log(error.message); }
     }
 }
