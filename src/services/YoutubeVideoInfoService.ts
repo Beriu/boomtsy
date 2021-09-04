@@ -1,6 +1,6 @@
 import ytdl from 'ytdl-core';
 import ytsr, {Video} from 'ytsr';
-import {song, userInteractionRequest} from "../types";
+import { Song } from "../types";
 
 export default class YoutubeVideoInfoService {
 
@@ -10,15 +10,15 @@ export default class YoutubeVideoInfoService {
         return /((http(s)?:\/\/)?)(www\.)?((youtube\.com\/)|(youtu.be\/))[\S]+/g.test(url);
     }
 
-    protected static async youtubeSearchByQuery(params: string): Promise<song> {
+    protected static async youtubeSearchByQuery(params: string): Promise<Song> {
         let {items} = await ytsr(params, {limit: 5, });
         items = items.filter(i => i.type === "video");
         const [firstVideo] = items as Array<Video>;
         const { title, url: videoUrl, bestThumbnail, duration } = firstVideo;
-        return {title, duration, url: videoUrl, thumbnail: bestThumbnail.url} as song;
+        return {title, duration, url: videoUrl, thumbnail: bestThumbnail.url} as Song;
     }
 
-    protected static async youtubeSearchByUrl(url: string): Promise<song> {
+    protected static async youtubeSearchByUrl(url: string): Promise<Song> {
         const { videoDetails: { title, lengthSeconds, thumbnails: [firstThumbnail], video_url } }  = await ytdl.getBasicInfo(url);
         const duration = YoutubeVideoInfoService.convertSecondsToStdFormat(parseInt(lengthSeconds));
         return {title, duration, url: video_url, thumbnail: firstThumbnail.url};
@@ -31,10 +31,7 @@ export default class YoutubeVideoInfoService {
         return `${minutes}:${leftoverSeconds}`;
     }
 
-    public static async handle({ data }: userInteractionRequest) {
-
-        const {options: [{value: input}]} = data;
-
+    public static async search(input: string) {
         return YoutubeVideoInfoService.isValidUrl(input)
             ? await YoutubeVideoInfoService.youtubeSearchByUrl(input)
             : await YoutubeVideoInfoService.youtubeSearchByQuery(input);

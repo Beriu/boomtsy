@@ -20,3 +20,10 @@ export class NotTextChannelException extends Error {
         super('Command was run in an abnormal environment.');
     }
 }
+
+export class CommandOutsideGuildException extends Error {
+
+    constructor() {
+        super('Cannot run a command outside a guild.');
+    }
+}
