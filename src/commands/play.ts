@@ -1,11 +1,9 @@
 import {SlashCommandBuilder, SlashCommandStringOption} from "@discordjs/builders";
-import {Collection, CommandInteraction, GuildMember} from "discord.js";
+import {Collection, CommandInteraction, GuildMember, VoiceChannel} from "discord.js";
 import YoutubeVideoInfoService from "../services/YoutubeVideoInfoService";
 import {Song} from "../types";
 import {CommandOutsideGuildException} from "../errors";
-import createVoiceConnection from "../utils/createVoiceConnection";
-import ytdl from "ytdl-core";
-import {createAudioPlayer, createAudioResource, generateDependencyReport} from "@discordjs/voice";
+import Session from "../services/Session";
 
 
 export default {
@@ -20,32 +18,29 @@ export default {
             .setRequired(true)
         ),
 
-    async execute(interaction: CommandInteraction, queues: Collection<string, Array<Song>>) {
-
-        let guildQueue: Array<Song>;
+    async execute(interaction: CommandInteraction, sessions: Collection<string, Session>) {
 
         if(!interaction.guild) throw new CommandOutsideGuildException();
 
-        if(!queues.get(interaction.guild.id)) {
-            queues.set(interaction.guild.id, []);
+        let session = sessions.get(interaction.guild.id)
+
+        if(!session) {
+            sessions.set(interaction.guild.id, new Session());
+            session = sessions.get(interaction.guild.id) as Session;
         }
-        guildQueue = queues.get(interaction.guild.id) as Array<Song>;
 
         await interaction.deferReply({ ephemeral: true });
 
         const song = await YoutubeVideoInfoService.search(interaction.options.getString('input') as string)
 
-        guildQueue.push(song);
+        session.addSong(song);
 
         await interaction.editReply({ content: song.title });
 
-        const voiceChannel = (interaction.member as GuildMember)?.voice.channel;
+        const voiceChannel = (interaction.member as GuildMember)?.voice.channel as VoiceChannel;
 
-        if(voiceChannel) {
-            const connection = createVoiceConnection(voiceChannel);
-            const player = createAudioPlayer();
-            player.play(createAudioResource(ytdl(song.url, { filter: 'audioonly' })));
-            connection.subscribe(player);
+        if(voiceChannel && session.isNotPlaying()) {
+            session.start(voiceChannel);
         }
     },
 };

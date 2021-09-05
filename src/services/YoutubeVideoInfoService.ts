@@ -12,7 +12,7 @@ export default class YoutubeVideoInfoService {
 
     protected static async youtubeSearchByQuery(params: string): Promise<Song> {
         let {items} = await ytsr(params, {limit: 5, });
-        items = items.filter(i => i.type === "video");
+        items = items.filter(i => i.type === "video" && !i.isLive);
         const [firstVideo] = items as Array<Video>;
         const { title, url: videoUrl, bestThumbnail, duration } = firstVideo;
         return {title, duration, url: videoUrl, thumbnail: bestThumbnail.url} as Song;
