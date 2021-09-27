@@ -1,55 +1,58 @@
-import {createAudioPlayer, createAudioResource, VoiceConnection} from "@discordjs/voice";
-import ytdl from "ytdl-core";
 import {Song} from "../types";
-import {VoiceChannel} from "discord.js";
+import {GuildChannel, VoiceChannel} from "discord.js";
+import {AudioPlayer, AudioPlayerStatus, createAudioPlayer, VoiceConnection} from "@discordjs/voice";
 import createVoiceConnection from "../utils/createVoiceConnection";
-import createYoutubeResource from "../utils/createYoutubeResource";
+import createAudioSource from "../utils/createAudioSource";
 
 export default class Session {
 
-    private player = createAudioPlayer();
-    private connection?: VoiceConnection;
+    private readonly player: AudioPlayer;
+    private readonly connection: VoiceConnection;
     private queue: Song[] = [];
-    private nextIndex: number = -1;
+    private nextIndex: number = 0;
 
-    constructor() {
+    constructor(guildChannel: GuildChannel) {
+
+        this.player = createAudioPlayer();
+        this.connection = createVoiceConnection(guildChannel);
+
+        this.player.on('error', console.error);
+        this.connection.on('error', console.error);
+
         this.player.on("stateChange", (oldState, newState) => {
-            if(newState.status === 'autopaused') {
+            if(newState.status === AudioPlayerStatus.AutoPaused) {
                 if(this.nextIndex !== -1 && this.queue[this.nextIndex]) {
                     const song = this.queue[this.nextIndex];
-                    this.player.play(createYoutubeResource(song.url));
+                    this.player.play(createAudioSource(song.url));
                 }
             }
         });
     }
 
     isNotPlaying() {
-        return this.player.state.status !== 'playing';
+        return this.player.state.status !== AudioPlayerStatus.Playing;
     }
 
     addSong(song: Song) {
         this.queue.push(song);
-        this.nextIndex++;
     }
 
     removeSong(index: number) {
         this.queue.splice(index, 1);
     }
 
-    start(voiceChannel: VoiceChannel) {
-        if(!this.connection) {
-            this.connection = createVoiceConnection(voiceChannel);
-        }
+    start() {
         const song = this.queue[this.nextIndex];
-        this.player.play(createYoutubeResource(song.url));
+        this.player.play(createAudioSource(song.url));
         this.connection.subscribe(this.player);
+        this.nextIndex++;
     }
 
     next() {
         if(this.nextIndex <= this.queue.length) {
             this.player.stop(true);
             const song = this.queue[this.nextIndex];
-            this.player.play(createYoutubeResource(song.url));
+            this.player.play(createAudioSource(song.url));
             return song;
         }
         this.stop();
@@ -57,9 +60,7 @@ export default class Session {
     }
 
     stop() {
-        this.queue = [];
-        this.nextIndex = -1;
         this.player.stop(true);
-        this.connection?.destroy();
+        this.connection.destroy();
     }
 }

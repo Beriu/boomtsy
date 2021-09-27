@@ -1,15 +1,13 @@
-import {Snowflake} from "discord.js";
-
 export class NotInVoiceChannelException extends Error {
 
-    constructor(userId: Snowflake) {
+    constructor(userId: string) {
         super(`Silly <@${userId}>, you need to join a voice channel first!`);
     }
 }
 
 export class InvalidYoutubeUrlException extends Error {
 
-    constructor(userId: Snowflake) {
+    constructor(userId: string) {
         super(`<@${userId}> that's not a valid youtube url.`);
     }
 }

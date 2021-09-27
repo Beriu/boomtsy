@@ -1,8 +1,15 @@
 import {SlashCommandBuilder, SlashCommandStringOption} from "@discordjs/builders";
-import {Collection, CommandInteraction, GuildMember, VoiceChannel} from "discord.js";
+import {
+    Collection,
+    CommandInteraction,
+    GuildMember,
+    MessageActionRow,
+    MessageSelectMenu,
+    VoiceChannel
+} from "discord.js";
 import YoutubeVideoInfoService from "../services/YoutubeVideoInfoService";
 import {Song} from "../types";
-import {CommandOutsideGuildException} from "../errors";
+import {CommandOutsideGuildException, NotInVoiceChannelException} from "../errors";
 import Session from "../services/Session";
 
 
@@ -20,16 +27,20 @@ export default {
 
     async execute(interaction: CommandInteraction, sessions: Collection<string, Session>) {
 
-        if(!interaction.guild) throw new CommandOutsideGuildException();
+        await interaction.deferReply();
 
-        let session = sessions.get(interaction.guild.id)
+        if(!interaction.guild) throw new CommandOutsideGuildException();
+        if(!interaction.member) throw new CommandOutsideGuildException();
+
+        const voiceChannel = (interaction.member as GuildMember).voice.channel as VoiceChannel;
+        if(!voiceChannel) throw new NotInVoiceChannelException(interaction.member.user.id);
+
+        let session = sessions.get(interaction.guild.id);
 
         if(!session) {
-            sessions.set(interaction.guild.id, new Session());
+            sessions.set(interaction.guild.id, new Session(voiceChannel));
             session = sessions.get(interaction.guild.id) as Session;
         }
-
-        await interaction.deferReply({ ephemeral: true });
 
         const song = await YoutubeVideoInfoService.search(interaction.options.getString('input') as string)
 
@@ -37,10 +48,6 @@ export default {
 
         await interaction.editReply({ content: song.title });
 
-        const voiceChannel = (interaction.member as GuildMember)?.voice.channel as VoiceChannel;
-
-        if(voiceChannel && session.isNotPlaying()) {
-            session.start(voiceChannel);
-        }
+        if(session.isNotPlaying()) session.start();
     },
 };
