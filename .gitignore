@@ -112,3 +112,6 @@ dist
 
 # Env files
 .env
+
+# Test data
+tests/testData

@@ -3,8 +3,6 @@ import {
     Collection,
     CommandInteraction,
     GuildMember,
-    MessageActionRow,
-    MessageSelectMenu,
     VoiceChannel
 } from "discord.js";
 import YoutubeVideoInfoService from "../services/YoutubeVideoInfoService";
@@ -39,10 +37,11 @@ export default {
 
         if(!session) {
             sessions.set(interaction.guild.id, new Session(voiceChannel));
-            session = sessions.get(interaction.guild.id) as Session;
+            session = sessions.get(interaction.guild.id)!;
         }
 
-        const song = await YoutubeVideoInfoService.search(interaction.options.getString('input') as string)
+        const input = interaction.options.get("input")!;
+        const song = await YoutubeVideoInfoService.search(input.value as string);
 
         session.addSong(song);
 

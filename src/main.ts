@@ -1,19 +1,19 @@
-import {Client, Collection, Intents} from "discord.js";
+import {ActivityType, Client, Collection, GatewayIntentBits} from "discord.js";
 import CommandsRepository from "./repositories/CommandsRepository";
 import loadCommands from "./utils/loadCommands";
 import Session from "./services/Session";
 
-(async function() {
+async function run() {
 
     const { DISCORD_BOT_TOKEN, DISCORD_APP_ID, TEST_GUILD_ID } = process.env as { [key: string]: any };
 
     const client = new Client({
         presence: {
-            activities: [{ name: 'BANGERS 🔥', type: 'LISTENING' }]
+            activities: [{ name: 'BANGERS 🔥', type: ActivityType.Listening }]
         },
         intents: [
-            Intents.FLAGS.GUILDS,
-            Intents.FLAGS.GUILD_VOICE_STATES,
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildVoiceStates,
         ]
     });
 
@@ -38,7 +38,9 @@ import Session from "./services/Session";
     });
 
     await client.login(DISCORD_BOT_TOKEN);
-})();
+}
+
+void run();
 
 
 

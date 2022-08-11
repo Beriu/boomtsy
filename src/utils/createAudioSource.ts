@@ -1,8 +1,13 @@
-import {createAudioResource} from "@discordjs/voice";
+import {createAudioResource, demuxProbe, AudioResource} from "@discordjs/voice";
 import ytdl from "ytdl-core";
 
-export default function createAudioSource(url: string) {
-    return createAudioResource(
-        ytdl(url, { filter: 'audioonly', highWaterMark: 1 << 25, quality: 'highestaudio' })
+export default async function createAudioSource(url: string): Promise<AudioResource<null>> {
+
+    const { stream, type: inputType } = await demuxProbe(
+        ytdl(
+            url,
+            { filter: 'audioonly', highWaterMark: 1 << 30, quality: 'highestaudio' }
+        )
     );
+    return createAudioResource(stream, { inputType });
 }

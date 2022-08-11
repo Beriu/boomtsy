@@ -1,5 +1,7 @@
 FROM node:16-alpine
 
+RUN apk add libtool
+
 # Create app directory
 WORKDIR /usr/src/app
 
