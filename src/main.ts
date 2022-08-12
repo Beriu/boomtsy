@@ -1,7 +1,10 @@
-import {ActivityType, Client, Collection, GatewayIntentBits} from "discord.js";
+import {ActivityType, Client, Collection, CommandInteraction, GatewayIntentBits, PresenceUpdateStatus} from "discord.js";
 import CommandsRepository from "./repositories/CommandsRepository";
 import loadCommands from "./utils/loadCommands";
 import Session from "./services/Session";
+import { generateDependencyReport } from "@discordjs/voice"
+
+console.log(generateDependencyReport());
 
 async function run() {
 
@@ -9,18 +12,20 @@ async function run() {
 
     const client = new Client({
         presence: {
-            activities: [{ name: 'BANGERS 🔥', type: ActivityType.Listening }]
+            activities: [{ name: 'BANGERS 🔥', type: ActivityType.Listening }],
+            status: PresenceUpdateStatus.Online,
         },
         intents: [
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildVoiceStates,
+            GatewayIntentBits.GuildMessages
         ]
     });
 
     const commands = loadCommands(__dirname + '/commands');
     await (new CommandsRepository(DISCORD_APP_ID, DISCORD_BOT_TOKEN)).updateCommands(TEST_GUILD_ID, commands);
 
-    const sessions: Collection<string, Session> = new Collection();
+    const sessions: Map<string, Session> = new Map();
 
     client.once('ready', () => console.info('Bot is running...'));
 
@@ -33,7 +38,8 @@ async function run() {
         try {
             await command.execute(interaction, sessions);
         } catch (error) {
-            await interaction.editReply({ content: (error as Error).message });
+            console.log(error);
+            await interaction.reply({ content: (error as Error).message });
         }
     });
 

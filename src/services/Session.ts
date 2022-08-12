@@ -1,9 +1,23 @@
 import {Song} from "../types";
 import {GuildChannel} from "discord.js";
-import {AudioPlayer, AudioPlayerStatus, createAudioPlayer, VoiceConnection} from "@discordjs/voice";
+import {AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, NoSubscriberBehavior, VoiceConnection, VoiceConnectionStatus} from "@discordjs/voice";
 import createVoiceConnection from "../utils/createVoiceConnection";
 import createAudioSource from "../utils/createAudioSource";
 import Queue from "./Queue";
+
+interface StatusHaver {
+    status: string;
+}
+
+const printStateChangeToConsole = (identifier: string) => {
+    return (oldState: StatusHaver, newState: StatusHaver) => {
+
+        const now = new Date();
+        const nowToString = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+
+        console.info(`[${nowToString}][${identifier}][${oldState.status}->${newState.status}]`);
+    }
+};
 
 export default class Session {
 
@@ -15,15 +29,18 @@ export default class Session {
 
     constructor(guildChannel: GuildChannel) {
 
-        this.player = createAudioPlayer();
+        this.player = createAudioPlayer({ debug: true, behaviors: { noSubscriber: NoSubscriberBehavior.Stop } });
         this.connection = createVoiceConnection(guildChannel);
-        this.connection.subscribe(this.player);
+        
+        entersState(this.connection, VoiceConnectionStatus.Ready, 30_000)
+            .then(() => { this.connection.subscribe(this.player); });
 
         this.player.on('error', console.error);
         this.connection.on('error', console.error);
-        this.connection.on('stateChange', (oldState, newState) => console.log("Connection", `${oldState.status}->${newState.status}`));
+        this.connection.on('debug', console.info);
         
-        this.player.on('stateChange', (oldState, newState) => console.log("Player", `${oldState.status}->${newState.status}`));
+        this.connection.on('stateChange', printStateChangeToConsole('VoiceConnection'));
+        this.player.on('stateChange', printStateChangeToConsole('AudioPlayer'));
 
         this.player.on(AudioPlayerStatus.AutoPaused, async (oldState, newState) => {
             if(!this.queue.isEmpty()) {
@@ -60,7 +77,6 @@ export default class Session {
             this.player.play(await createAudioSource(this.current.url));
             return this.current;
         }
-        this.stop();
         return false;
     }
 

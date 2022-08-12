@@ -3,11 +3,16 @@ import ytdl from "ytdl-core";
 
 export default async function createAudioSource(url: string): Promise<AudioResource<null>> {
 
-    const { stream, type: inputType } = await demuxProbe(
-        ytdl(
-            url,
-            { filter: 'audioonly', highWaterMark: 1 << 30, quality: 'highestaudio' }
-        )
+    const requestOptions = { 
+        headers: {
+            "X-Youtube-Identity-Token": process.env.YOUTUBE_TOKEN
+        } 
+    };
+    const funnel = ytdl(
+        url,
+        { requestOptions, filter: 'audioonly', highWaterMark: 1 << 25, quality: 'highestaudio' }
     );
+
+    const { stream, type: inputType } = await demuxProbe(funnel);
     return createAudioResource(stream, { inputType });
 }
