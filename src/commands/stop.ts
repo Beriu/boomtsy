@@ -13,9 +13,9 @@ export default {
     async execute(interaction: CommandInteraction, sessions: Collection<string, Session>) {
         if(!interaction.guild) throw new CommandOutsideGuildException();
         const session = sessions.get(interaction.guild.id);
-        if(!session) return await interaction.reply({ content: 'No stream is running.' });
+        if(!session) return await interaction.editReply({ content: 'No stream is running.' });
         session.stop();
         sessions.delete(interaction.guild.id);
-        await interaction.reply({ content: 'Stop playing and cleared queue.' });
+        await interaction.editReply({ content: 'Stop playing and cleared queue.' });
     },
 };

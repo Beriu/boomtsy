@@ -7,7 +7,7 @@ export default class CommandsRepository {
     private client: REST;
 
     constructor(private appId: string, private botToken: string) {
-        this.client = new REST({ version: '9' }).setToken(botToken);
+        this.client = new REST({ version: '9' }).setToken(this.botToken);
     }
 
     updateCommands = (guildId: string, commands: Collection<any, any>) => {

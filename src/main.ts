@@ -1,14 +1,14 @@
-import {ActivityType, Client, Collection, CommandInteraction, GatewayIntentBits, PresenceUpdateStatus} from "discord.js";
+import {ActivityType, Client, Collection, GatewayIntentBits, PresenceUpdateStatus} from "discord.js";
 import CommandsRepository from "./repositories/CommandsRepository";
 import loadCommands from "./utils/loadCommands";
 import Session from "./services/Session";
-import { generateDependencyReport } from "@discordjs/voice"
+import express from "express";
 
-console.log(generateDependencyReport());
+const sessions: Collection<string, Session> = new Collection();
 
-async function run() {
+async function runBot() {
 
-    const { DISCORD_BOT_TOKEN, DISCORD_APP_ID, TEST_GUILD_ID } = process.env as { [key: string]: any };
+    const { DISCORD_BOT_TOKEN, DISCORD_APP_ID, TEST_GUILD_ID } = process.env as Record<string, any>;
 
     const client = new Client({
         presence: {
@@ -22,31 +22,49 @@ async function run() {
         ]
     });
 
+    const repo = new CommandsRepository(DISCORD_APP_ID, DISCORD_BOT_TOKEN);
     const commands = loadCommands(__dirname + '/commands');
-    await (new CommandsRepository(DISCORD_APP_ID, DISCORD_BOT_TOKEN)).updateCommands(TEST_GUILD_ID, commands);
-
-    const sessions: Map<string, Session> = new Map();
+    await repo.updateCommands(TEST_GUILD_ID, commands);
 
     client.once('ready', () => console.info('Bot is running...'));
+    client.on('error', console.info);
 
     client.on('interactionCreate', async interaction => {
 
         if (!interaction.isCommand()) return;
+
+        await interaction.deferReply();
+
         const command = commands.get(interaction.commandName);
-        if (!command) return;
+
+        if (!command){
+            await interaction.editReply({ content: `${interaction.commandName} is not a valid command.` })
+            return;
+        }
 
         try {
             await command.execute(interaction, sessions);
         } catch (error) {
-            console.log(error);
-            await interaction.reply({ content: (error as Error).message });
+            await interaction.editReply({ content: (error as Error).message });
         }
     });
 
     await client.login(DISCORD_BOT_TOKEN);
 }
 
-void run();
+async function runServer() {
+    const app = express();
+
+    app.get('/sessions', (req, res) => {
+        console.log(sessions);
+        res.send(JSON.stringify([...sessions.keys()]));
+    });
+
+    app.listen(5000, () => console.log(`Express at http://localhost:5000`));
+}
+
+void runBot();
+void runServer();
 
 
 

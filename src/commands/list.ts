@@ -21,6 +21,6 @@ export default {
         const queuedSongs = queue.map(s => `${s.title}`).join("\n");
         const currentSong = current ? `-> ${current.title}` : "";
 
-        return await interaction.reply({ content: `${currentSong} \n ${queuedSongs}` });
+        return await interaction.editReply({ content: `${currentSong} \n ${queuedSongs}` });
     },
 };

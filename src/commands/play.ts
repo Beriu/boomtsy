@@ -25,8 +25,6 @@ export default {
 
     async execute(interaction: CommandInteraction, sessions: Collection<string, Session>) {
 
-        await interaction.deferReply();
-
         if(!interaction.guild) throw new CommandOutsideGuildException();
         if(!interaction.member) throw new CommandOutsideGuildException();
 

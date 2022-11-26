@@ -10,7 +10,7 @@ export default class Queue<T> {
         if(this.items.length > 0) {
             return this.items.shift();
         }
-        throw Error("Queue error placeholder");
+        throw Error("Atempting to deque without on zero items.");
     }
     
     peek() {
