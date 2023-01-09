@@ -3,6 +3,9 @@ import CommandsRepository from "./repositories/CommandsRepository";
 import loadCommands from "./utils/loadCommands";
 import Session from "./services/Session";
 import express from "express";
+import { Server } from "socket.io";
+import http from "http";
+import path from "path";
 
 const sessions: Collection<string, Session> = new Collection();
 
@@ -37,7 +40,7 @@ async function runBot() {
 
         const command = commands.get(interaction.commandName);
 
-        if (!command){
+        if (!command) {
             await interaction.editReply({ content: `${interaction.commandName} is not a valid command.` })
             return;
         }
@@ -54,13 +57,16 @@ async function runBot() {
 
 async function runServer() {
     const app = express();
+    const server = http.createServer(app);
+    const socket = new Server(server);
 
-    app.get('/sessions', (req, res) => {
-        console.log(sessions);
-        res.send(JSON.stringify([...sessions.keys()]));
+    app.use('', express.static(path.join(__dirname, '../dashboard')));
+
+    socket.on('connection', (socket) => {
+        socket.emit("sessions/get", JSON.stringify(sessions.map(v => v)));
     });
 
-    app.listen(5000, () => console.log(`Express at http://localhost:5000`));
+    server.listen(5000, () => console.log(`Express at http://localhost:5000`));
 }
 
 void runBot();

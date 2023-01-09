@@ -80,8 +80,10 @@ export default class Session {
     }
 
     stop() {
-        this.player.stop(true);
-        this.connection.destroy();
+        if(this.player.stop(true)) {
+            return this.connection.destroy();
+        }
+        console.error('Session didnt end.');
     }
 
     songs() {
@@ -89,5 +91,12 @@ export default class Session {
             current: this.current,
             queue: this.queue.getItems()
         };
+    }
+
+    toString() {
+        return JSON.stringify({
+            queue: this.queue,
+            current: this.current
+        });
     }
 }
