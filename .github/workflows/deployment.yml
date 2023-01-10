@@ -37,4 +37,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Create a container and start it
-      run: docker run -dp 80:$WEBSERVER_PORT boomtsy
+      run: docker run -dp 80:${{ vars.WEBSERVER_PORT }} boomtsy
