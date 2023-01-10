@@ -16,3 +16,21 @@ jobs:
     - uses: actions/checkout@v3
     - name: Pull latest changes to raspberry
       run: git pull origin master
+
+  image:
+
+    runs-on: homegrown
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Create a container and start it
+      run: docker build -t boomtsy .
+
+  run:
+
+    runs-on: homegrown
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Create a container and start it
+      run: docker run -dp 80:$WEBSERVER_PORT boomtsy

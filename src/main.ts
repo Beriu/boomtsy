@@ -66,7 +66,9 @@ async function runServer() {
         socket.emit("sessions/get", JSON.stringify(sessions.map(v => v)));
     });
 
-    server.listen(5000, () => console.log(`Express at http://localhost:5000`));
+    server.listen(process.env.WEBSERVER_PORT, () => {
+        console.log(`Webserver running at http://localhost:${process.env.WEBSERVER_PORT}`);
+    });
 }
 
 void runBot();
