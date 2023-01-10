@@ -31,7 +31,6 @@ jobs:
     runs-on: homegrown
     needs: pull
     steps:
-    - uses: docker
     - name: Create a container and start it
       run: docker build -t boomtsy .
 
