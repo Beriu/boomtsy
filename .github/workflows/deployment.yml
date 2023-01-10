@@ -20,11 +20,11 @@ jobs:
         WEBSERVER_PORT: ${{ vars.WEBSERVER_PORT }}
       run: |
         touch .env
-        echo DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN >> .env
-        echo DISCORD_APP_ID=$DISCORD_APP_ID >> .env
-        echo TEST_GUILD_ID=$TEST_GUILD_ID >> .env
-        echo YOUTUBE_TOKEN=$YOUTUBE_TOKEN >> .env
-        echo WEBSERVER_PORT=$WEBSERVER_PORT >> .env
+        echo DISCORD_BOT_TOKEN="$DISCORD_BOT_TOKEN" >> .env
+        echo DISCORD_APP_ID="$DISCORD_APP_ID" >> .env
+        echo TEST_GUILD_ID="$TEST_GUILD_ID" >> .env
+        echo YOUTUBE_TOKEN="$YOUTUBE_TOKEN" >> .env
+        echo WEBSERVER_PORT="$WEBSERVER_PORT" >> .env
         cat .env
 
   pull:
