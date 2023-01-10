@@ -12,15 +12,20 @@ jobs:
     runs-on: homegrown
     steps:
     - name: Create env file for container
+      env:
+        DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
+        TEST_GUILD_ID: ${{ secrets.TEST_GUILD_ID }}
+        YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
+        WEBSERVER_PORT: ${{ vars.WEBSERVER_PORT }}
       run: |
         touch .env
-        echo DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }} >> .env
-        echo DISCORD_APP_ID=${{ secrets.DISCORD_APP_ID }} >> .env
-        echo TEST_GUILD_ID=${{ secrets.TEST_GUILD_ID }} >> .env
-        echo YOUTUBE_TOKEN=${{ secrets.YOUTUBE_TOKEN }} >> .env
-        echo WEBSERVER_PORT=${{ vars.WEBSERVER_PORT }} >> .env
+        echo DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN >> .env
+        echo DISCORD_APP_ID=$DISCORD_APP_ID >> .env
+        echo TEST_GUILD_ID=$TEST_GUILD_ID >> .env
+        echo YOUTUBE_TOKEN=$YOUTUBE_TOKEN >> .env
+        echo WEBSERVER_PORT=$WEBSERVER_PORT >> .env
         cat .env
-        ls -a
 
   pull:
     runs-on: homegrown
@@ -43,4 +48,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Create a container and start it
-      run: docker run --env-file ./.env -dp 80:${{ vars.WEBSERVER_PORT }} boomtsy
+      run: docker run -dp 80:${{ vars.WEBSERVER_PORT }} boomtsy
