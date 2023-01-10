@@ -63,7 +63,7 @@ async function runServer() {
     app.use('', express.static(path.join(__dirname, '../dashboard')));
 
     socket.on('connection', (socket) => {
-        socket.emit("sessions/get", JSON.stringify(sessions.map(v => v)));
+        socket.emit("sessions/get", 'Hi there! This is on CibzPi');
     });
 
     server.listen(process.env.WEBSERVER_PORT, () => {
