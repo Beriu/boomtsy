@@ -19,6 +19,8 @@ jobs:
         echo TEST_GUILD_ID=${{ secrets.TEST_GUILD_ID }} >> .env
         echo YOUTUBE_TOKEN=${{ secrets.YOUTUBE_TOKEN }} >> .env
         echo WEBSERVER_PORT=${{ vars.WEBSERVER_PORT }} >> .env
+        cat .env
+        ls -a
 
   pull:
     runs-on: homegrown
