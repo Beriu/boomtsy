@@ -10,6 +10,7 @@ jobs:
 
   env:
     runs-on: homegrown
+    environment: production
     steps:
     - name: Create env file for container
       env:
