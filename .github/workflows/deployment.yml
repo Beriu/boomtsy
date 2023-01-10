@@ -6,42 +6,39 @@ on:
   pull_request:
     branches: [ "master" ]
 
-env:
-  DISCORD_BOT_TOKEN: ${{ vars.DISCORD_BOT_TOKEN }}
-  DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
-  TEST_GUILD_ID: ${{ vars.TEST_GUILD_ID }}
-  YOUTUBE_TOKEN: ${{ vars.YOUTUBE_TOKEN }}
-
 jobs:
 
-  pull:
-
+  env:
     runs-on: homegrown
+    steps:
+    - name: Create env file for container
+      run: |
+        touch .env
+        echo DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }} >> .env
+        echo DISCORD_APP_ID=${{ secrets.DISCORD_APP_ID }} >> .env
+        echo TEST_GUILD_ID=${{ secrets.TEST_GUILD_ID }} >> .env
+        echo YOUTUBE_TOKEN=${{ secrets.YOUTUBE_TOKEN }} >> .env
+        echo WEBSERVER_PORT=${{ vars.WEBSERVER_PORT }} >> .env
 
+  pull:
+    runs-on: homegrown
     steps:
     - uses: actions/checkout@v3
     - name: Pull latest changes to raspberry
       run: git pull origin master
 
   image:
-
     runs-on: homegrown
-
     needs: pull
-
     steps:
-    - uses: actions/checkout@v3
+    - uses: docker
     - name: Create a container and start it
       run: docker build -t boomtsy .
 
   run:
-
     runs-on: homegrown
-
-    needs: [pull, image]
-
+    needs: [pull, image, env]
     environment: production
-
     steps:
     - uses: actions/checkout@v3
     - name: Create a container and start it
