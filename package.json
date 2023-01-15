@@ -4,8 +4,9 @@
   "description": "A music discord bot",
   "main": "dist/index.js",
   "scripts": {
-    "dev:frontend": "vue-tsc --project tsconfig.frontend.json && vite build --watch --emptyOutDir",
     "dev:backend": "ts-node-dev --project tsconfig.backend.json -r dotenv/config src/main.ts",
+    "dev:frontend": "vue-tsc --project tsconfig.frontend.json && vite build --watch --emptyOutDir",
+    "build:frontend": "vue-tsc --project tsconfig.frontend.json && vite build --emptyOutDir",
     "build:backend": "tsc --project tsconfig.backend.json",
     "start": "node -r dotenv/config dist/src/main.js",
     "test": "jest tests/createAudioResource.test.ts"
