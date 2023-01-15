@@ -6,6 +6,7 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http";
 import path from "path";
+import { readdirSync } from "fs";
 
 const sessions: Collection<string, Session> = new Collection();
 
@@ -60,7 +61,11 @@ async function runServer() {
     const server = http.createServer(app);
     const socket = new Server(server);
 
-    app.use('', express.static(path.join(__dirname, '../dashboard')));
+    app.use('', express.static(path.join(process.env.PWD as string, '/distApp')));
+
+    app.get('/', function(req, res) {
+        res.sendFile(path.join(process.env.PWD as string, '/distApp/index.html'));
+    });
 
     socket.on('connection', (socket) => {
         socket.emit("sessions/get", 'Hi there! This is on CibzPi');

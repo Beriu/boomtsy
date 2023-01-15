@@ -18,7 +18,9 @@ RUN npm ci
 # Bundle app source
 COPY . .
 
-RUN npm run build
+RUN npm run build:frontend
+
+RUN npm run build:backend
 
 EXPOSE 8080
 
