@@ -2,15 +2,10 @@ import {ActivityType, Client, Collection, GatewayIntentBits, PresenceUpdateStatu
 import CommandsRepository from "./repositories/CommandsRepository";
 import loadCommands from "./utils/loadCommands";
 import Session from "./services/Session";
-import express from "express";
-import { Server } from "socket.io";
-import http from "http";
-import path from "path";
-import { readdirSync } from "fs";
 
 const sessions: Collection<string, Session> = new Collection();
 
-async function runBot() {
+export default async function runBot() {
 
     const { DISCORD_BOT_TOKEN, DISCORD_APP_ID, TEST_GUILD_ID } = process.env as Record<string, any>;
 
@@ -56,28 +51,7 @@ async function runBot() {
     await client.login(DISCORD_BOT_TOKEN);
 }
 
-async function runServer() {
-    const app = express();
-    const server = http.createServer(app);
-    const socket = new Server(server);
 
-    app.use('', express.static(path.join(process.env.PWD as string, '/distApp')));
-
-    app.get('/', function(req, res) {
-        res.sendFile(path.join(process.env.PWD as string, '/distApp/index.html'));
-    });
-
-    socket.on('connection', (socket) => {
-        socket.emit("sessions/get", 'Hi there! This is on CibzPi');
-    });
-
-    server.listen(process.env.WEBSERVER_PORT, () => {
-        console.log(`Webserver running at http://localhost:${process.env.WEBSERVER_PORT}`);
-    });
-}
-
-void runBot();
-void runServer();
 
 
 
