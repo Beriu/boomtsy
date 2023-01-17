@@ -71,7 +71,7 @@
   "references": [{ "path": "./tsconfig.node.json" }],
 
   "exclude": [
-    "./tests/",
+    "./bot/tests/",
     "./node_modules/",
     "./dist/",
     "./distApp",
