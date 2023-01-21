@@ -71,6 +71,7 @@
   "references": [{ "path": "./tsconfig.node.json" }],
 
   "exclude": [
+    "vite.config.ts",
     "./bot/tests/",
     "./node_modules/",
     "./dist/",

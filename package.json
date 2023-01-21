@@ -9,7 +9,7 @@
     "dev:frontend": "vite",
     "build:frontend": "vue-tsc --project tsconfig.frontend.json && vite build --emptyOutDir",
     "build:backend": "tsc --project tsconfig.backend.json",
-    "start": "node -r dotenv/config dist/src/main.js",
+    "start": "node -r dotenv/config dist/main.js",
     "test": "jest tests/createAudioResource.test.ts"
   },
   "repository": {
