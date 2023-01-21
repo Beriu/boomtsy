@@ -18,8 +18,8 @@ jobs:
         DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
         TEST_GUILD_ID: ${{ secrets.TEST_GUILD_ID }}
         YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
+        DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
         WEBSERVER_PORT: ${{ vars.WEBSERVER_PORT }}
-        DISCORD_CLIENT_SECRET: ${{ vars.DISCORD_CLIENT_SECRET }}
       run: |
         touch .env
         echo DISCORD_BOT_TOKEN="$DISCORD_BOT_TOKEN" >> .env
