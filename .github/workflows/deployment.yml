@@ -19,6 +19,7 @@ jobs:
         TEST_GUILD_ID: ${{ secrets.TEST_GUILD_ID }}
         YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
         WEBSERVER_PORT: ${{ vars.WEBSERVER_PORT }}
+        DISCORD_CLIENT_SECRET: ${{ vars.DISCORD_CLIENT_SECRET }}
       run: |
         touch .env
         echo DISCORD_BOT_TOKEN="$DISCORD_BOT_TOKEN" >> .env
@@ -26,6 +27,7 @@ jobs:
         echo TEST_GUILD_ID="$TEST_GUILD_ID" >> .env
         echo YOUTUBE_TOKEN="$YOUTUBE_TOKEN" >> .env
         echo WEBSERVER_PORT="$WEBSERVER_PORT" >> .env
+        echo DISCORD_CLIENT_SECRET="$DISCORD_CLIENT_SECRET" >> .env
         cat .env
 
   pull:
