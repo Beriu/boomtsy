@@ -2,12 +2,13 @@
 import { onMounted } from "vue";
 import state from "./state";
 import useAuth from "./useAuth";
+import User from "./components/User.vue";
 
 const clientId = "794506117497618452";
 const redirectUri = encodeURIComponent(window.location.origin);
 const loginLink = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=identify`;
 
-const { getToken, setToken } = useAuth();
+const { token, setToken } = useAuth();
 
 const extractCodeFromUrl = (url: string) => {
     // window.location.hash
@@ -15,28 +16,29 @@ const extractCodeFromUrl = (url: string) => {
     return fragment.get("code");
 };
 
-const fetchUser = async ({ accessToken, tokenType }) => {
-    const raw = await fetch('https://discord.com/api/users/@me', {
-        headers: { 
-            authorization: `${tokenType} ${accessToken}`
-        },
-    });
-    const user = await raw.json();
-    return user;
-};
-
 onMounted(async () => {
     const code = extractCodeFromUrl(window.location.search);
-
     if(code) {
-        const response = await fetch('/api/auth', {
-            method: 'POST',
-            body: JSON.stringify({ code }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const { accessToken, expiresIn } = await response.json();
-        setToken(accessToken, expiresIn);
-        window.history.replaceState({}, '', window.location.origin);
+        try {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                body: JSON.stringify({ code, redirectUri: window.location.origin }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const { accessToken, expiresIn } = await response.json();
+            setToken(accessToken, expiresIn);
+            window.history.replaceState({}, '', window.location.origin);
+        }catch(error: any) {
+            console.error(error);
+        }
+    }
+
+    if(token) {
+        const userResponse = await fetch('/api/user', 
+            { headers: { 'Authorization': token.value } }
+        );
+        const user = await userResponse.json();
+        state.user = user;
     }
 });
 
@@ -44,7 +46,9 @@ onMounted(async () => {
 
 <template>
     <main>
-        <p v-if="getToken()">You're logged in! {{ state.user }}</p>
+        <div v-if="token">
+            <User :user="state.user" />
+        </div>
         <VBtn v-else :href="loginLink" color="#7289DA" class="text-white">
             <VIcon icon="mdi-discord" class="mr-2" color="white"/>
             Log in with Discord

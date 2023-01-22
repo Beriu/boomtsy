@@ -1,16 +1,16 @@
 import { request } from "undici";
 
-export const authenticate = async (code: string) => {
+export const authenticate = async (code: string, redirectUri: string) => {
 
     const body = new URLSearchParams({
         client_id: process.env.DISCORD_APP_ID as string,
         client_secret: process.env.DISCORD_CLIENT_SECRET as string,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: `http://localhost:8080`,
+        redirect_uri: redirectUri,
         scope: 'identify',
     }).toString();
-
+    
     try {
         const rawRequest = await request('https://discord.com/api/oauth2/token', {
             method: 'POST',
@@ -27,3 +27,14 @@ export const authenticate = async (code: string) => {
         throw new Error(error.message);
     }
 };
+
+export const fetchUser = async (token: string) => {
+    const raw = await request('https://discord.com/api/users/@me', {
+        headers: { 
+            authorization: `Bearer ${token}`
+        },
+    });
+    const user = await raw.body.json();
+    return user;
+};
+
