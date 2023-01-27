@@ -8,8 +8,8 @@ export default function useAuth() {
     const token = ref(existingToken ?? "");
   
     const setToken = (newToken: string, expiresIn: number) => {
-        token.value = newToken;
         Cookie.set('accessToken', `Bearer ${newToken}`, { expires: expiresIn / 60 / 60 / 24 });
+        token.value = `Bearer ${newToken}`;
     }
 
     return { token, setToken };

@@ -18,6 +18,7 @@ const extractCodeFromUrl = (url: string) => {
 
 onMounted(async () => {
     const code = extractCodeFromUrl(window.location.search);
+    
     if(code) {
         try {
             const response = await fetch('/api/auth', {
@@ -28,7 +29,7 @@ onMounted(async () => {
             const { accessToken, expiresIn } = await response.json();
             setToken(accessToken, expiresIn);
             window.history.replaceState({}, '', window.location.origin);
-        }catch(error: any) {
+        } catch(error: any) {
             console.error(error);
         }
     }

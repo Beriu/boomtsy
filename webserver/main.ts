@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import { authenticate, fetchUser } from "./services/Discord";
 import isAuthenticated from "./middlewares/isAuthenticated";
 import JWT from "jsonwebtoken";
+import createSession from "./middlewares/createSession";
 
 function generateAccessToken(userDiscordToken: string, expiresIn: number) {
     return JWT.sign(
@@ -22,6 +23,7 @@ export default async function runServer() {
     const socket = new Server(server);
     const sessions = new Map();
 
+    app.use(createSession());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
     
@@ -32,8 +34,7 @@ export default async function runServer() {
     });
 
     app.get('/api/user', isAuthenticated, async (req, res) => {
-        //@ts-ignore
-        const user = await fetchUser(req.discordToken);
+        const user = await fetchUser(req.session.discordToken!);
         res.send(user);
     });
 

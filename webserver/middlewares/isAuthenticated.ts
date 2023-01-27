@@ -15,8 +15,8 @@ const isAuthenticated: RequestHandler = (req, res, next) => {
 
         //@ts-ignore
         const { token: discordToken } = JWT.decode(token, secret, { json: true });
-        //@ts-ignore
-        req.discordToken = discordToken;
+        
+        req.session.discordToken = discordToken;
 
         next();
     });
