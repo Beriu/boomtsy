@@ -1,12 +1,15 @@
 // to make the file a module and avoid the TypeScript error
-export { }
+export {}
 
 declare global {
     namespace Express {
         export interface Request {
-            session: {
-                discordToken?: string,
+            context?: {
+                discordToken: string,
                 user: {
+                    id: string,
+                    avatar: string,
+                    username: string,
                 }
             }
         }

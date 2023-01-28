@@ -9,14 +9,15 @@ const isAuthenticated: RequestHandler = (req, res, next) => {
 
     if (token == null) return res.sendStatus(401);
 
-    JWT.verify(token, secret, (err: any, user: any) => {
+    JWT.verify(token, secret, (err: any) => {
 
         if (err) return res.sendStatus(403);
 
         //@ts-ignore
-        const { token: discordToken } = JWT.decode(token, secret, { json: true });
+        const { token: discordToken, user } = JWT.decode(token, secret, { json: true });
         
-        req.session.discordToken = discordToken;
+        req.context!.discordToken = discordToken;
+        req.context!.user = user;
 
         next();
     });

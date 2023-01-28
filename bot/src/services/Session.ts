@@ -23,12 +23,14 @@ export default class Session {
 
     private readonly player: AudioPlayer;
     private readonly connection: VoiceConnection;
+    private readonly voiceChannel: VoiceChannel
 
     private queue: Queue<Song> = new Queue();
     private current: Song | null = null;
 
     constructor(voiceChannel: VoiceChannel) {
 
+        this.voiceChannel = voiceChannel;
         this.player = createAudioPlayer({ behaviors: { noSubscriber: NoSubscriberBehavior.Stop } });
         this.connection = createVoiceConnection(voiceChannel);
         
@@ -98,5 +100,11 @@ export default class Session {
             queue: this.queue,
             current: this.current
         });
+    }
+
+    hasUser(userId: string) {
+        return [
+            ...this.voiceChannel.members.values()
+        ].some(member => member.user.id === userId);
     }
 }

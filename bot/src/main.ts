@@ -3,9 +3,7 @@ import CommandsRepository from "./repositories/CommandsRepository";
 import loadCommands from "./utils/loadCommands";
 import Session from "./services/Session";
 
-const sessions: Collection<string, Session> = new Collection();
-
-export default async function runBot() {
+export default async function runBot(sessions: Collection<string, Session>) {
 
     const { DISCORD_BOT_TOKEN, DISCORD_APP_ID, TEST_GUILD_ID } = process.env as Record<string, any>;
 
