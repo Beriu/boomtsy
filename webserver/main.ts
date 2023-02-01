@@ -9,6 +9,7 @@ import JWT from "jsonwebtoken";
 import createContex from "./middlewares/createContex";
 import { Collection } from "discord.js";
 import Session from "../bot/src/services/Session";
+import EventEmitter from "node:events";
 
 type DiscordUser = { id: string, username: string, avatar: string };
 
@@ -20,7 +21,7 @@ function generateAccessToken(userDiscordToken: string, expiresIn: number, user: 
     );
 }
 
-export default async function runServer(sessions: Collection<string, Session>) {
+export default async function runServer(sessions: Collection<string, Session>, bridge: EventEmitter) {
    
     const app = express();
     const server = http.createServer(app);
@@ -61,7 +62,11 @@ export default async function runServer(sessions: Collection<string, Session>) {
         }
     });
 
-    socket.on('/api/ws', (socket) => {
+    bridge.on('playlist/refresh', (e) => socket.emit('playlist/refresh', e));
+    bridge.on('playlist/clear', () => socket.emit('playlist/clear'));
+
+    socket.on('connect', (socket) => {
+        console.log('New connection!');
         socket.emit("sessions/get", 'Hi there! This is on CibzPi');
     });
 

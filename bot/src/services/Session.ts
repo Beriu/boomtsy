@@ -73,7 +73,6 @@ export default class Session {
 
     async next() {
         if(this.queue.peek()) {
-            this.player.stop(true);
             this.current = this.queue.dequeue()!;
             this.player.play(await createAudioSource(this.current));
             return this.current;

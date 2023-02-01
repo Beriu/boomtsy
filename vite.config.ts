@@ -24,6 +24,10 @@ export default defineConfig(({ command, mode }) => {
                     target: `http://localhost:${env.WEBSERVER_PORT}`,
                     changeOrigin: true,
                 },
+                '/socket.io': {
+                    target: 'ws://localhost:5000',
+                    ws: true,
+                }
                 
             }
         },

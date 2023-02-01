@@ -2,8 +2,9 @@ import {ActivityType, Client, Collection, GatewayIntentBits, PresenceUpdateStatu
 import CommandsRepository from "./repositories/CommandsRepository";
 import loadCommands from "./utils/loadCommands";
 import Session from "./services/Session";
+import EventEmitter from "node:events";
 
-export default async function runBot(sessions: Collection<string, Session>) {
+export default async function runBot(sessions: Collection<string, Session>, bridge: EventEmitter) {
 
     const { DISCORD_BOT_TOKEN, DISCORD_APP_ID, TEST_GUILD_ID } = process.env as Record<string, any>;
 
@@ -40,7 +41,7 @@ export default async function runBot(sessions: Collection<string, Session>) {
         }
 
         try {
-            await command.execute(interaction, sessions);
+            await command.execute({ interaction, sessions, bridge });
         } catch (error) {
             await interaction.editReply({ content: (error as Error).message });
         }

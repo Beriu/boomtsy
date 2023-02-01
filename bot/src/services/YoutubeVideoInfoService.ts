@@ -10,8 +10,8 @@ export default class YoutubeVideoInfoService {
         return /((http(s)?:\/\/)?)(www\.)?((youtube\.com\/)|(youtu.be\/))[\S]+/g.test(url);
     }
 
-    protected static async youtubeSearchByQuery(params: string): Promise<Song> {
-        let {items} = await ytsr(params, {limit: 5, });
+    protected static async youtubeSearchByQuery(url: string): Promise<Song> {
+        let {items} = await ytsr(url, { limit: 5 });
         items = items.filter(i => i.type === "video" && !i.isLive);
         const [firstVideo] = items as Array<Video>;
         const { title, url: videoUrl, bestThumbnail, duration } = firstVideo;
@@ -25,7 +25,7 @@ export default class YoutubeVideoInfoService {
     }
 
     protected static convertSecondsToStdFormat(seconds: number): string {
-        const minutes = ~~(seconds / 60);
+        const minutes = Math.floor(seconds / 60);
         let leftoverSeconds: string | number = seconds % 60;
         leftoverSeconds = leftoverSeconds.toString().length < 2 ? `0${leftoverSeconds}` : `${leftoverSeconds}`;
         return `${minutes}:${leftoverSeconds}`;

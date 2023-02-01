@@ -1,8 +1,18 @@
-import {Collection} from "discord.js";
+import {Collection, CommandInteraction} from "discord.js";
 import fs from "fs";
 import {SlashCommandBuilder} from "@discordjs/builders";
+import Session from "../services/Session";
+import EventEmitter from "node:events";
 
-type commandWrapper = { data: SlashCommandBuilder, execute: CallableFunction };
+export type commandHandlerParams = { 
+    interaction: CommandInteraction,
+    sessions: Collection<string, Session>,
+    bridge: EventEmitter
+};
+
+export type commandHandler = (params: commandHandlerParams) => void;
+
+type commandWrapper = { data: SlashCommandBuilder, execute: commandHandler };
 
 export default function loadCommands(path: string) {
 
