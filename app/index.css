@@ -1,7 +1,0 @@
-:root {
-    --default-bg: #faeb9d;
-}
-
-body {
-    background-color: var(--default-bg);
-}
