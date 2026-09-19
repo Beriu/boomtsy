@@ -3,7 +3,7 @@ name = "boomtsy"
 version = "0.1.0"
 edition = "2024"
 description = "A self-hosted Discord music bot"
-license = "ISC"
+license = "MIT"
 
 [dependencies]
 poise = "0.7"
