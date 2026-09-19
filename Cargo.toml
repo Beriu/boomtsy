@@ -32,4 +32,7 @@ dotenvy = "0.15"
 [profile.release]
 # Debug symbols are two thirds of the binary, and this one ships to a Pi.
 strip = true
-lto = "thin"
+# No LTO on purpose. Measured both ways: 22.0MB without it, 22.5MB with -- the
+# strip above is what shrinks this binary, LTO contributed nothing. It did cost
+# 28 minutes in a single near-serial rustc process when cross-building for arm64
+# under emulation, with nineteen of twenty cores idle throughout.
