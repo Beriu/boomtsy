@@ -49,10 +49,11 @@ RUN set -eux; \
     apt-get autoremove -y; \
     rm -rf /var/lib/apt/lists/*
 
-# deno runs yt-dlp's JS challenge solver. Without it yt-dlp falls back to its
-# pure-Python interpreter, where a single YouTube lookup takes upwards of two
-# minutes instead of four seconds. It also needs YTDLP_EXTRA_ARGS to carry
-# `--remote-components ejs:github`, which is what fetches the solver itself.
+# deno is the only JavaScript runtime yt-dlp enables by default, and extraction
+# without one is deprecated: it still works, but warns that some formats may be
+# missing. Having the binary on PATH is the whole requirement -- no flags needed.
+# It is also the largest thing in this image by some margin, which is what rules
+# out an Alpine base: deno ships no musl builds.
 COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
 RUN deno --version
 
