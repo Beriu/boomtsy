@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use poise::serenity_prelude::{Colour, CreateEmbed, CreateEmbedFooter};
 
-use crate::song::Song;
+use crate::{song::Song, youtube::PLAYLIST_LIMIT};
 
 /// Discord blurple, so the bot reads as part of the client rather than against it.
 const ACCENT: Colour = Colour::new(0x5865F2);
@@ -27,12 +27,45 @@ pub fn enqueued(song: &Song, placement: Placement) -> CreateEmbed {
     decorate(base(song).author(author_line(heading)), song)
 }
 
+/// As [`enqueued`], plus a note that the link named a playlist which was not
+/// expanded. Without this the `playlist` option is impossible to discover.
+pub fn enqueued_from_playlist(song: &Song, placement: Placement) -> CreateEmbed {
+    enqueued(song, placement)
+        .description("*Part of a playlist — add `playlist:True` to queue all of it.*")
+}
+
 /// Announcement posted when the queue advances on its own.
 pub fn now_playing(song: &Song) -> CreateEmbed {
     decorate(
         base(song).author(author_line("Now playing".to_owned())),
         song,
     )
+}
+
+/// Confirmation for a playlist that was just queued.
+pub fn playlist_added(title: &str, count: usize, first: &Song) -> CreateEmbed {
+    let embed = CreateEmbed::new()
+        .colour(ACCENT)
+        .author(author_line(format!("Queued {count} tracks")))
+        .title(title)
+        .description(format!(
+            "Starting with **{}** `{}`",
+            first.title,
+            first.length.render()
+        ));
+
+    let embed = if count >= PLAYLIST_LIMIT {
+        embed.footer(CreateEmbedFooter::new(format!(
+            "capped at {PLAYLIST_LIMIT} tracks"
+        )))
+    } else {
+        embed
+    };
+
+    match &first.thumbnail {
+        Some(url) => embed.thumbnail(url),
+        None => embed,
+    }
 }
 
 /// The current track plus what follows it.

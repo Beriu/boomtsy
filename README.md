@@ -9,7 +9,7 @@ yt-dlp supports — into a voice channel. Built to run on a Raspberry Pi.
 
 | Command | |
 | --- | --- |
-| `/play <query>` | Link or search terms. Joins your channel and queues it. |
+| `/play <query> [playlist]` | Link, playlist, or search terms. Joins your channel and queues it. |
 | `/skip` | Skip the current track. |
 | `/stop` | Stop, clear the queue, leave. |
 | `/queue` | Current track and what's next. |
@@ -17,6 +17,14 @@ yt-dlp supports — into a voice channel. Built to run on a Raspberry Pi.
 | `/pause` · `/resume` | |
 
 Leaves automatically once the queue has been empty for `IDLE_TIMEOUT_SECONDS`.
+
+### Playlists
+
+YouTube's share button gives `watch?v=…&list=…` for a track inside a playlist,
+which can mean either the track or the list. `/play` queues **just the track** and
+says the link was part of a playlist; add `playlist:True` to queue the whole
+thing (capped at 100). A link naming only a list — `playlist?list=…` — always
+queues everything, since there is no single track to choose.
 
 ## Requirements
 
@@ -98,7 +106,7 @@ Resolves are timed in the log and abandoned after 45s with a message to the user
 
 ## Limits
 
-- Playlists aren't expanded (songbird passes `--no-playlist`)
+- Playlists are capped at 100 tracks
 - One voice channel per guild
 - Queue is in memory and does not survive a restart
 
