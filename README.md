@@ -57,8 +57,7 @@ docker build -t boomtsy .
 docker run -d --name boomtsy --restart unless-stopped --env-file .env boomtsy
 ```
 
-No ports are exposed; the bot only dials out. Pushing to `master` deploys via
-`.github/workflows/deployment.yml` on a self-hosted runner.
+No ports are exposed; the bot only dials out.
 
 Locally: `cargo run --release`.
 

@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master", "complete-rust-rewrite" ]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        # libopus_sys compiles libopus from source and drives cmake to do it.
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends cmake
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Formatting
+        run: cargo fmt --check
+
+      - name: Lints
+        run: cargo clippy --all-targets --locked -- -D warnings
+
+      - name: Tests
+        run: cargo test --locked
+
+  image:
+    # The Dockerfile is the only way this ships anywhere, so it is worth knowing
+    # that it still builds even while nothing is deployed from it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: boomtsy:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
