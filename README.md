@@ -90,12 +90,11 @@ makes yt-dlp walk its whole catalogue. `--no-playlist` doesn't apply and
 `--flat-playlist` to list, pick the first `ie_key == "Youtube"` entry, then
 resolve that URL.
 
-**YouTube's JS challenge needs both deno and a flag.** Without them yt-dlp falls
-back to a pure-Python interpreter and one lookup takes minutes:
-
-```
-YTDLP_EXTRA_ARGS=--remote-components ejs:github
-```
+**yt-dlp needs a JavaScript runtime.** Without one it warns that *"YouTube
+extraction without a JS runtime has been deprecated, and some formats may be
+missing"*. It currently still works, but it is on the way out. deno is the only
+runtime yt-dlp enables by default, and having it on `PATH` is enough — no flags,
+no `--remote-components`. The Docker image includes it.
 
 **Keep yt-dlp updated** (`yt-dlp -U`). It's an external binary because YouTube
 changes constantly. Other useful flags: `--cookies-from-browser firefox` for bot

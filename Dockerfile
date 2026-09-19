@@ -25,28 +25,42 @@ RUN touch src/main.rs && cargo build --release --locked
 # ---- runtime --------------------------------------------------------------
 FROM debian:bookworm-slim
 
-# yt-dlp ships a self-contained binary; it needs no system Python.
+# The release asset named plain `yt-dlp` is a Python zipapp and needs python3 on
+# PATH; only the per-architecture `yt-dlp_linux*` builds are self contained. The
+# version check at the end is the point: getting this wrong produces an image
+# that builds, starts, connects to Discord, and then fails on every single
+# /play, which is a slow and confusing way to find out.
+#
 # ffmpeg is deliberately absent: songbird streams the URL yt-dlp reports and
 # decodes it in-process with symphonia, so nothing ever shells out to ffmpeg.
-RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl \
- && curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
-      -o /usr/local/bin/yt-dlp \
- && chmod 0755 /usr/local/bin/yt-dlp \
- && apt-get purge -y curl \
- && apt-get autoremove -y \
- && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends ca-certificates curl; \
+    case "$(dpkg --print-architecture)" in \
+        amd64) asset=yt-dlp_linux ;; \
+        arm64) asset=yt-dlp_linux_aarch64 ;; \
+        *) echo "no self-contained yt-dlp build for $(dpkg --print-architecture)" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL "https://github.com/yt-dlp/yt-dlp/releases/latest/download/$asset" \
+        -o /usr/local/bin/yt-dlp; \
+    chmod 0755 /usr/local/bin/yt-dlp; \
+    yt-dlp --version; \
+    apt-get purge -y curl; \
+    apt-get autoremove -y; \
+    rm -rf /var/lib/apt/lists/*
+
+# deno is the only JavaScript runtime yt-dlp enables by default, and extraction
+# without one is deprecated: it still works, but warns that some formats may be
+# missing. Having the binary on PATH is the whole requirement -- no flags needed.
+# It is also the largest thing in this image by some margin, which is what rules
+# out an Alpine base: deno ships no musl builds.
+COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
+RUN deno --version
 
 # A real home directory, because yt-dlp caches extractor state under $HOME.
 RUN useradd --create-home --uid 10001 boomtsy
 USER boomtsy
 WORKDIR /home/boomtsy
-
-# deno runs yt-dlp's JS challenge solver. Without it yt-dlp falls back to its
-# pure-Python interpreter, where a single YouTube lookup takes upwards of two
-# minutes instead of four seconds. It also needs YTDLP_EXTRA_ARGS to carry
-# `--remote-components ejs:github`, which is what fetches the solver itself.
-COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
 
 COPY --from=build /src/target/release/boomtsy /usr/local/bin/boomtsy
 
