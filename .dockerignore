@@ -1,0 +1,11 @@
+# Never let a local secrets file reach the build context: anything copied in
+# becomes a layer in the image, and layers are readable by anyone who can pull it.
+.env
+*.env
+!.env.example
+
+.git
+.github
+target
+assets
+README.md

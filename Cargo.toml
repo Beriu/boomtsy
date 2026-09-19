@@ -1,0 +1,33 @@
+[package]
+name = "boomtsy"
+version = "0.1.0"
+edition = "2024"
+description = "A self-hosted Discord music bot"
+license = "ISC"
+
+[dependencies]
+poise = "0.7"
+songbird = { version = "0.6", features = ["builtin-queue"] }
+serenity = { version = "0.12.5", default-features = false, features = [
+    "client", "gateway", "rustls_backend", "model", "cache", "voice",
+] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+
+# songbird registers only its own Opus decoder plus the DCA and raw readers, and
+# defers every container and codec to whatever symphonia has enabled in the final
+# binary. Without these, the bot connects to voice and then fails on every track:
+# YouTube's audio-only formats are WebM/Opus (mkv) and M4A/AAC (isomp4 + aac).
+# Must stay on 0.5.x so cargo unifies it with the copy songbird depends on.
+symphonia = { version = "0.5", default-features = false, features = [
+    "mkv", "ogg", "isomp4", "aac", "mp3",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "2"
+dotenvy = "0.15"
+
+[profile.release]
+# Debug symbols are two thirds of the binary, and this one ships to a Pi.
+strip = true
+lto = "thin"
