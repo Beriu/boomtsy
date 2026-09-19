@@ -145,9 +145,20 @@ async fn register_commands(
     Ok(())
 }
 
+const DEFAULT_LOG_FILTER: &str = "boomtsy=info,songbird=warn,serenity=warn";
+
 fn init_tracing() {
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("boomtsy=info,songbird=warn,serenity=warn"));
+    // Same rule the rest of the configuration uses: a variable set to nothing
+    // means the same as one that is not set at all. `try_from_default_env`
+    // does not agree -- it reads `RUST_LOG=` as a filter with no directives,
+    // which silences every log line the process would ever emit. A bare
+    // `RUST_LOG=` in a .env file is a very easy way to end up with a bot that
+    // looks dead and is in fact running perfectly.
+    let filter = std::env::var("RUST_LOG")
+        .ok()
+        .filter(|directives| !directives.trim().is_empty())
+        .and_then(|directives| EnvFilter::try_new(directives).ok())
+        .unwrap_or_else(|| EnvFilter::new(DEFAULT_LOG_FILTER));
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
 }

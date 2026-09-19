@@ -5,7 +5,7 @@
 //! reported to the channel as a generic apology.
 
 use poise::serenity_prelude as serenity;
-use tracing::{error, warn};
+use tracing::{error, info, warn};
 
 use crate::Data;
 
@@ -31,6 +31,10 @@ pub enum BotError {
     #[error("resolving audio: {0}")]
     Resolve(#[from] songbird::input::AudioStreamError),
 
+    /// Exceptional: the search step could not be run or could not be read.
+    #[error("searching: {0}")]
+    Search(String),
+
     /// Exceptional: songbird rejected a queue operation.
     #[error("playback control: {0}")]
     Control(#[from] songbird::error::ControlError),
@@ -42,8 +46,10 @@ impl From<serenity::Error> for BotError {
     }
 }
 
-/// Outcomes the caller caused. Each variant's message is shown to them as-is,
-/// so it is written as a sentence addressed to a person.
+/// Failures worth reporting to whoever typed the command, in their terms. Each
+/// variant's message is shown as-is, so it is written as a sentence addressed to
+/// a person. Most are the caller's own doing; a couple, like a stalled lookup,
+/// are simply more useful as plain words than as a logged stack of context.
 #[derive(Debug, thiserror::Error)]
 pub enum UserError {
     #[error("Join a voice channel first, then try again.")]
@@ -64,6 +70,9 @@ pub enum UserError {
     #[error("I couldn't find anything for **{query}**.")]
     NoResults { query: String },
 
+    #[error("YouTube took too long to answer. Try that again.")]
+    ResolveTimedOut,
+
     /// `guild_only` on every command makes this unreachable in practice, but the
     /// type system cannot know that, so it is handled rather than unwrapped.
     #[error("That only works inside a server.")]
@@ -76,7 +85,15 @@ pub async fn handle(error: poise::FrameworkError<'_, Data, BotError>) {
         poise::FrameworkError::Command { error, ctx, .. } => {
             let reply = match &error {
                 BotError::User(expected) => {
-                    // Not a defect: the caller simply needs telling.
+                    // Not a defect, so not an error-level event -- but still
+                    // worth a line, because "the bot told me no" is the only
+                    // trace some problems leave behind.
+                    info!(
+                        command = %ctx.command().qualified_name,
+                        user = %ctx.author().name,
+                        reason = %expected,
+                        "declined"
+                    );
                     expected.to_string()
                 }
                 fault => {

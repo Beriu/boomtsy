@@ -42,6 +42,12 @@ RUN useradd --create-home --uid 10001 boomtsy
 USER boomtsy
 WORKDIR /home/boomtsy
 
+# deno runs yt-dlp's JS challenge solver. Without it yt-dlp falls back to its
+# pure-Python interpreter, where a single YouTube lookup takes upwards of two
+# minutes instead of four seconds. It also needs YTDLP_EXTRA_ARGS to carry
+# `--remote-components ejs:github`, which is what fetches the solver itself.
+COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
+
 COPY --from=build /src/target/release/boomtsy /usr/local/bin/boomtsy
 
 # No EXPOSE: the bot dials out to Discord's gateway and never listens.
